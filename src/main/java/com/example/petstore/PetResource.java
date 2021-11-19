@@ -22,7 +22,7 @@ public class PetResource {
 	List<Pet> pets = new ArrayList<Pet>();
 
 	@APIResponses(value = {
-			@APIResponse(responseCode = "200", description = "All Pets", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet"))) })
+			@APIResponse(responseCode = "200", description = "All Pets", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet")))})
 	@GET
 	public Response getPets() {
 
@@ -52,7 +52,7 @@ public class PetResource {
 
 	@APIResponses(value = {
 			@APIResponse(responseCode = "200", description = "Pet for id", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet"))),
-			@APIResponse(responseCode = "404", description = "No Pet found for the id.") })
+			@APIResponse(responseCode = "404", description = "No Pet found for the id.")})
 
 	//get a particular pet by Id
 	@GET
@@ -79,16 +79,62 @@ public class PetResource {
 
 	//	Add a pet
 	@APIResponses(value = {
-			@APIResponse(responseCode = "200", description = "Added pet successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet"))) })
+			@APIResponse(responseCode = "200", description = "Added pet successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet")))})
 
 	@POST
-	public Response addPet(@RequestBody (required = true) Pet pet) {
+	public Response addPet(@RequestBody(required = true) Pet pet) {
 		//pet obtained through frontend
 		pets.add(pet);
 		return Response.ok(pet).build();
 	}
 
+	//	Update a pet
+	@APIResponses(value = {
+			@APIResponse(responseCode = "200", description = "Pet Updated successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet"))),
+			@APIResponse(responseCode = "404", description = "No Pet found for the id.") })
 
+	@PUT
+	@Path("{petId}")
+	public Response updatePet(@PathParam("petId") int petId, @RequestBody Pet petUpdate) {
+		if (petId < 0) {
+			return Response.status(Status.NOT_FOUND).build();
+		} else {
+			for (Pet pet : pets) {
+				if (pet.getPetId() == petId) {
 
+					pets.remove(pet);
+					pets.add(petUpdate);
+
+					return Response.ok(pet).build();
+				}
+			}
+
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+
+	//	Delete a particular pet
+	@APIResponses(value = {
+			@APIResponse(responseCode = "200", description = "Pet Deleted", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(ref = "Pet"))),
+			@APIResponse(responseCode = "404", description = "No Pet found for the id.")})
+
+	@DELETE
+	@Path("{petId}")
+	public Response deletePet(@PathParam("petId") int petId) {
+		if (petId < 0) {
+			return Response.status(Status.NOT_FOUND).build();
+		} else {
+			for (Pet pet : pets) {
+				if (pet.getPetId() == petId) {
+
+					pets.remove(pet);
+
+					return Response.noContent().build();
+				}
+			}
+
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
 }
 
